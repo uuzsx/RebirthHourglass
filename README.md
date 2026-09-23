@@ -9,7 +9,7 @@ Rebirth Hourglass / 重生沙漏
 
 后续所有其他 Minecraft 版本均使用独立版本分支；`main` 保持 1.21.1。通用修复先进入 `main`，再移植到需要的版本分支。下载或编译前请确认分支与游戏版本一致。
 
-面向 Minecraft **1.21.1 + NeoForge 21.1.251 + Java 21** 的重新实现。模组 ID 为 `rebirth_hourglass`。需要在客户端和服务端同时安装。
+面向 Minecraft **1.21.2 + NeoForge 21.2.1-beta + Java 21** 的重新实现。模组 ID 为 `rebirth_hourglass`。需要在客户端和服务端同时安装。
 
 源码使用物品 Data Components 保存储时、NeoForge Data Attachments 保存玩家恢复记录。沿用旧项目的沙漏动画贴图和基础配方，业务实现重新编写。
 
@@ -52,14 +52,14 @@ Linux/macOS：使用 JDK 21，然后执行 ./gradlew build
 开发服务端：gradlew.bat runServer
 ```
 
-主模组 JAR 输出到 `build/libs/`。文件名含 `sources` 的 JAR 是源码，不要作为模组安装。构建固定使用 Gradle 9.2.1、ModDevGradle 2.0.147、NeoForge 21.1.251。
+主模组 JAR 输出到 `build/libs/`。文件名含 `sources` 的 JAR 是源码，不要作为模组安装。构建固定使用 Gradle 9.2.1、ModDevGradle 2.0.147、NeoForge 21.2.1-beta。
 
 测试包含费用边界、经验分段公式，以及真实游戏服务端中的多沙漏、副手、护甲、死亡取消、keepInventory、恢复幂等性、存档序列化、满背包与跨维度传送。GameTest 类和测试结构不会进入正式模组 JAR。首次运行需要下载 Minecraft 开发环境及资源。
 
 兼容性与范围：
 
-- 严格针对 Minecraft 1.21.1；不能将此 JAR 当成 1.21.2 或其他 Minecraft 版本的通用版本。
-- 当前未包含 Curios 适配器；沙漏放在原版主物品栏或副手时有效。
+- 严格针对 Minecraft 1.21.2。该版本对应的 NeoForge 发布为 beta，不能将此 JAR 当成 1.21.1、1.21.3 或 1.21.4 通用版本。
+- 当前未包含 Curios 实现：检查官方 Maven 时没有找到针对 1.21.2 的 Curios 版本。
 - 额外库存可以通过 `api.InventoryAdapters.register(ResourceLocation, InventoryAdapter)` 接入。适配器负责实时读取、插入和返回未插入部分；不能重复暴露同一槽位。注册应在 common setup 时完成。
 - 保护仅接管正常死亡掉落事件中、与死亡前库存匹配的物品；不会凭空复原已经被其他机制保存的物品。其他模组提前取消掉落事件时，本模组放弃接管并撤回自身对经验球的抑制。
 - 墓碑、复活和修改掉落/经验的模组组合仍需单独验证。没有宣称对任意事件优先级和第三方私有库存流程通用兼容。

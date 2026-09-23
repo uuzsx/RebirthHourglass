@@ -2,7 +2,7 @@ Rebirth Hourglass 2.0.0 验证记录
 
 日期：2026-09-24。
 
-环境：Windows，Java 21.0.8，Minecraft 1.21.1，NeoForge 21.1.251，Gradle 9.2.1，ModDevGradle 2.0.147。
+环境：Windows，Java 21.0.8，Minecraft 1.21.2，NeoForge 21.2.1-beta，Gradle 9.2.1，ModDevGradle 2.0.147。
 
 执行 `build runGameTestServer` 成功。
 
@@ -12,9 +12,7 @@ Rebirth Hourglass 2.0.0 验证记录
 | ChargeRulesTest | 11 项通过 |
 | ExperienceMathTest | 4 项通过 |
 | Minecraft 服务端 GameTest | 9 项全部通过 |
-| 配方和资源解析错误 | 未发现 |
-
-首次启动测试服务器时，原版因 `server.properties` 尚不存在记录了一条读取错误，随后自动生成默认配置并完成全部测试；这不是模组或配方加载失败。
+| 最终一轮日志中的 ERROR / 资源解析错误 | 未发现 |
 
 GameTest 使用 Minecraft 的服务端玩家和正常死亡/重生、存档及传送 API，覆盖：
 1. 多个储时不足的沙漏，包括副手沙漏，均保留；普通物品正常掉落。
@@ -37,6 +35,6 @@ GameTest 使用 Minecraft 的服务端玩家和正常死亡/重生、存档及�
 用户明确确认：最大储时 24 分钟。其余默认规则采用讨论中的推荐方案，并可在服务端配置里更改：死亡保护 6 分钟、当前经验返还 50%、传送初始费用 6 分钟且 5 分钟内线性降至零。
 
 框架参考：
-- [官方 1.21.1 MDK](https://github.com/NeoForgeMDKs/MDK-1.21.1-ModDevGradle)
-- [NeoForge 1.21.1 数据组件](https://docs.neoforged.net/docs/1.21.1/items/datacomponents/)
-- [NeoForge 1.21.1 数据附件](https://docs.neoforged.net/docs/1.21.1/datastorage/attachments/)
+- [官方 1.21.2 MDK](https://github.com/NeoForgeMDKs/MDK-1.21.2-ModDevGradle/tree/438f902fa80ab5e30d1a7c35c3c1708ccc7e98f6)
+- [NeoForge 1.21.2–1.21.3 数据组件](https://docs.neoforged.net/docs/1.21.3/items/datacomponents/)
+- [NeoForge 1.21.2–1.21.3 数据附件](https://docs.neoforged.net/docs/1.21.3/datastorage/attachments/)

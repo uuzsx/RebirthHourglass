@@ -163,7 +163,7 @@ public final class HourglassGameTests {
             player.setItemInHand(InteractionHand.MAIN_HAND, sand(360));
             player.getData(ModContent.RECOVERY).target(Optional.of(new DeathPoint(Level.NETHER, Vec3.atBottomCenterOf(feet), PlayerLifecycle.gameTick(player))));
             var result = ModContent.HOURGLASS.get().use(player.level(), player, InteractionHand.MAIN_HAND);
-            test.assertTrue(result.getResult().consumesAction() && player.level().dimension().equals(Level.NETHER), "Return must change dimension");
+            test.assertTrue(result.consumesAction() && player.level().dimension().equals(Level.NETHER), "Return must change dimension");
             test.assertTrue(HourglassItem.charge(player.getMainHandItem()) == 0, "Exact balance must be accepted");
             test.assertTrue(player.getData(ModContent.RECOVERY).target().isEmpty(), "Successful return must consume the target");
             test.succeed();
@@ -176,9 +176,9 @@ public final class HourglassGameTests {
         try {
             player.setItemInHand(InteractionHand.MAIN_HAND, sand(500));
             player.getData(ModContent.RECOVERY).target(Optional.of(new DeathPoint(player.level().dimension(),
-                    new Vec3(0, player.level().getMaxBuildHeight() - 3, 0), PlayerLifecycle.gameTick(player))));
+                    new Vec3(0, player.level().getMaxY() - 3, 0), PlayerLifecycle.gameTick(player))));
             var result = ModContent.HOURGLASS.get().use(player.level(), player, InteractionHand.MAIN_HAND);
-            test.assertTrue(result.getResult() == InteractionResult.FAIL, "Return into the sky must fail");
+            test.assertTrue(result == InteractionResult.FAIL, "Return into the sky must fail");
             test.assertTrue(HourglassItem.charge(player.getMainHandItem()) == 500, "Failed return must not spend charge");
             test.assertTrue(player.getData(ModContent.RECOVERY).target().isPresent(), "Failed return must retain the target");
             test.succeed();
@@ -198,7 +198,7 @@ public final class HourglassGameTests {
             player.getData(ModContent.RECOVERY).target(Optional.of(new DeathPoint(level.dimension(),
                     Vec3.atBottomCenterOf(feet), PlayerLifecycle.gameTick(player))));
             var result = ModContent.HOURGLASS.get().use(player.level(), player, InteractionHand.MAIN_HAND);
-            test.assertTrue(result.getResult().consumesAction() && player.position().distanceToSqr(Vec3.atBottomCenterOf(feet)) < 0.01,
+            test.assertTrue(result.consumesAction() && player.position().distanceToSqr(Vec3.atBottomCenterOf(feet)) < 0.01,
                     "Return in the same dimension must reach the target");
             test.assertTrue(HourglassItem.charge(player.getMainHandItem()) == 0, "Same-dimension return must deduct the exact fee");
             test.assertTrue(player.getData(ModContent.RECOVERY).target().isEmpty(), "Same-dimension return must consume the target");
