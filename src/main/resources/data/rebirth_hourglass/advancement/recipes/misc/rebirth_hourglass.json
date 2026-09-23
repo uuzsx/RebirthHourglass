@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_totem": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:totem_of_undying"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_totem"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "rebirth_hourglass:rebirth_hourglass"
+    ]
+  }
+}

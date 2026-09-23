@@ -1,0 +1,15 @@
+{
+  "item.rebirth_hourglass.rebirth_hourglass": "重生沙漏",
+  "itemGroup.rebirth_hourglass": "重生沙漏",
+  "tooltip.rebirth_hourglass.charge": "储存时间：%s / %s",
+  "tooltip.rebirth_hourglass.protection": "死亡保护消耗 %s，保留 %s%% 当前经验",
+  "tooltip.rebirth_hourglass.return": "右键：返回最近一次受保护的死亡地点",
+  "message.rebirth_hourglass.no_target": "没有可返回的受保护死亡地点。",
+  "message.rebirth_hourglass.insufficient": "储时不足：本次需要 %s，当前储存 %s。",
+  "message.rebirth_hourglass.missing_dimension": "原死亡维度不可用，未扣除时间。",
+  "message.rebirth_hourglass.unsafe": "死亡地点附近没有安全落点，未扣除时间。",
+  "message.rebirth_hourglass.blocked": "传送被阻止，未扣除时间。",
+  "message.rebirth_hourglass.returned": "已返回死亡地点，消耗 %s。",
+  "message.rebirth_hourglass.restored": "沙漏已返还 %s 组物品。",
+  "message.rebirth_hourglass.pending": "沙漏已返还 %s 组物品，还有 %s 组等待背包空间或对应库存扩展。"
+}

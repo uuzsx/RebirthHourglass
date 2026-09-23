@@ -1,0 +1,15 @@
+{
+  "item.rebirth_hourglass.rebirth_hourglass": "Rebirth Hourglass",
+  "itemGroup.rebirth_hourglass": "Rebirth Hourglass",
+  "tooltip.rebirth_hourglass.charge": "Stored time: %s / %s",
+  "tooltip.rebirth_hourglass.protection": "Death protection costs %s and retains %s%% of current XP",
+  "tooltip.rebirth_hourglass.return": "Right-click to return to your last protected death",
+  "message.rebirth_hourglass.no_target": "There is no protected death to return to.",
+  "message.rebirth_hourglass.insufficient": "Not enough charge: this return costs %s; stored: %s.",
+  "message.rebirth_hourglass.missing_dimension": "The original dimension is unavailable. No charge spent.",
+  "message.rebirth_hourglass.unsafe": "No safe landing near the death point. No charge spent.",
+  "message.rebirth_hourglass.blocked": "Teleportation was blocked. No charge spent.",
+  "message.rebirth_hourglass.returned": "Returned to your death point. Charge spent: %s.",
+  "message.rebirth_hourglass.restored": "The hourglass restored %s item stacks.",
+  "message.rebirth_hourglass.pending": "Restored %s stacks. %s await inventory space or their inventory integration."
+}

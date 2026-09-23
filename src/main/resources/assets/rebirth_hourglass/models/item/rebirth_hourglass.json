@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "rebirth_hourglass:item/rebirth_hourglass"
+  }
+}

@@ -1,0 +1,21 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="rebirth_hourglass"
+version="${version}"
+displayName="Rebirth Hourglass"
+authors="TeamPancakeMC, XiaoHuNao"
+description='''A rechargeable hourglass that protects your inventory and brings you back after death.'''
+[[dependencies.rebirth_hourglass]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.251,21.2)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.rebirth_hourglass]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"
