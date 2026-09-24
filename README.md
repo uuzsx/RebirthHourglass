@@ -6,6 +6,13 @@ Rebirth Hourglass / 重生沙漏
 |---|---|---|---|
 | [`main`](https://github.com/uuzsx/RebirthHourglass/tree/main) | 1.21.1 | 21.1.251 | 默认分支、主要维护版本 |
 | [`1.21.2`](https://github.com/uuzsx/RebirthHourglass/tree/1.21.2) | 1.21.2 | 21.2.1-beta | 版本适配分支 |
+| [`26.1.1`](https://github.com/uuzsx/RebirthHourglass/tree/26.1.1) | 26.1.1 | 26.1.1.15-beta | 版本适配分支 |
+| [`26.1.2`](https://github.com/uuzsx/RebirthHourglass/tree/26.1.2) | 26.1.2 | 26.1.2.109 | 版本适配分支 |
+| [`26.2`](https://github.com/uuzsx/RebirthHourglass/tree/26.2) | 26.2 | 26.2.0.88 | 版本适配分支 |
+| [`26.3`](https://github.com/uuzsx/RebirthHourglass/tree/26.3) | 26.3 | 26.3.0.16-beta | 版本适配分支 |
+| [`26.4`](https://github.com/uuzsx/RebirthHourglass/tree/26.4) | 26.4 | 尚未发布 | 仅预留分支，未支持、无安装包 |
+
+26.x 分支使用 Java 25，1.21.x 分支使用 Java 21。`26.4` 暂为待适配分支，无可安装 JAR。
 
 后续所有其他 Minecraft 版本均使用独立版本分支；`main` 保持 1.21.1。通用修复先进入 `main`，再移植到需要的版本分支。下载或编译前请确认分支与游戏版本一致。
 
