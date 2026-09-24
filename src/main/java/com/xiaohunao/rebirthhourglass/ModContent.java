@@ -27,7 +27,7 @@ public final class ModContent {
                     .networkSynchronized(ByteBufCodecs.VAR_INT).build());
     public static final Supplier<HourglassItem> HOURGLASS = ITEMS.registerItem("rebirth_hourglass", HourglassItem::new);
     public static final Supplier<AttachmentType<RecoveryState>> RECOVERY = ATTACHMENTS.register("recovery",
-            () -> AttachmentType.serializable(RecoveryState::new).copyOnDeath().build());
+            () -> AttachmentType.builder(RecoveryState::new).serialize(RecoveryState.CODEC).copyOnDeath().build());
     public static final Supplier<AttachmentType<Optional<DeathPlan>>> PLAN = ATTACHMENTS.register("death_plan",
             () -> AttachmentType.<Optional<DeathPlan>>builder(Optional::empty).build());
 

@@ -1,6 +1,8 @@
 modLoader="javafml"
 loaderVersion="[4,)"
 license="All Rights Reserved"
+[[mixins]]
+config="rebirth_hourglass.mixins.json"
 [[mods]]
 modId="rebirth_hourglass"
 version="${version}"
@@ -10,12 +12,12 @@ description='''A rechargeable hourglass that protects your inventory and brings 
 [[dependencies.rebirth_hourglass]]
 modId="neoforge"
 type="required"
-versionRange="[21.1.251,21.2)"
+versionRange="[26.3.0.16-beta,26.4)"
 ordering="NONE"
 side="BOTH"
 [[dependencies.rebirth_hourglass]]
 modId="minecraft"
 type="required"
-versionRange="[1.21.1]"
+versionRange="[26.3]"
 ordering="NONE"
 side="BOTH"

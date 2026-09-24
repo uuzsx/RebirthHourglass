@@ -6,7 +6,6 @@ import com.xiaohunao.rebirthhourglass.data.*;
 import com.xiaohunao.rebirthhourglass.event.PlayerLifecycle;
 import com.xiaohunao.rebirthhourglass.item.HourglassItem;
 import net.minecraft.core.BlockPos;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -14,7 +13,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -22,16 +21,30 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-@GameTestHolder(RebirthHourglass.MOD_ID)
-@PrefixGameTestTemplate(false)
+
+@net.neoforged.fml.common.EventBusSubscriber(modid = RebirthHourglass.MOD_ID)
 public final class HourglassGameTests {
-    @GameTest(template = "test_empty")
+    @net.neoforged.bus.api.SubscribeEvent
+    public static void register(net.neoforged.neoforge.registries.RegisterEvent event) {
+        event.register(net.minecraft.core.registries.Registries.TEST_FUNCTION, helper -> {
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "inventorydropoutsidedeathremainsvanilla"), HourglassGameTests::inventoryDropOutsideDeathRemainsVanilla);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "multipleunchargedandoffhandsurvive"), HourglassGameTests::multipleUnchargedAndOffhandSurvive);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "protecteddeathrestoresexactlyonce"), HourglassGameTests::protectedDeathRestoresExactlyOnce);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "keepinventorydoesnotchargeormultiplyxp"), HourglassGameTests::keepInventoryDoesNotChargeOrMultiplyXp);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "laterdeathcancellationleavesinventoryuntouched"), HourglassGameTests::laterDeathCancellationLeavesInventoryUntouched);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "fullinventoryretainsunclaimeditems"), HourglassGameTests::fullInventoryRetainsUnclaimedItems);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "persistentrecoverycopiescomponentsanddimension"), HourglassGameTests::persistentRecoveryCopiesComponentsAndDimension);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "crossdimensionreturnusesexactbalance"), HourglassGameTests::crossDimensionReturnUsesExactBalance);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "unsafereturndoesnotspendcharge"), HourglassGameTests::unsafeReturnDoesNotSpendCharge);
+            helper.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(RebirthHourglass.MOD_ID, "samedimensionreturnconsumestarget"), HourglassGameTests::sameDimensionReturnConsumesTarget);
+        });
+    }
+
+
     public static void multipleUnchargedAndOffhandSurvive(GameTestHelper test) {
         ServerPlayer player = player(test);
         boolean previous = keep(player, false);
@@ -41,6 +54,8 @@ public final class HourglassGameTests {
             player.getInventory().setItem(40, sand(200));
             player.getInventory().setItem(2, new ItemStack(Items.DIAMOND, 17));
             die(player);
+            test.assertTrue(dropped(player, ModContent.HOURGLASS.get()) == 0, "Recovered hourglasses must not also spawn in the world");
+            test.assertTrue(dropped(player, Items.DIAMOND) == 17, "Unprotected diamonds must be emitted exactly once; found " + dropped(player, Items.DIAMOND));
             ServerPlayer next = respawn(player);
             test.assertTrue(count(next, ModContent.HOURGLASS.get()) == 3, "All three undercharged hourglasses must survive");
             test.assertTrue(count(next, Items.DIAMOND) == 0, "Unprotected diamonds must not be restored");
@@ -50,7 +65,6 @@ public final class HourglassGameTests {
         } finally { keep(player, previous); close(player); }
     }
 
-    @GameTest(template = "test_empty")
     public static void protectedDeathRestoresExactlyOnce(GameTestHelper test) {
         ServerPlayer player = player(test);
         boolean previous = keep(player, false);
@@ -64,6 +78,9 @@ public final class HourglassGameTests {
             die(player);
             ServerPlayer next = respawn(player);
             test.assertTrue(count(next, ModContent.HOURGLASS.get()) == 2, "An undercharged hourglass before the payer must not disappear");
+            test.assertTrue(dropped(player, ModContent.HOURGLASS.get()) == 0 && dropped(player, Items.DIAMOND) == 0
+                    && dropped(player, Items.IRON_CHESTPLATE) == 0 && dropped(player, Items.SHIELD) == 0,
+                    "Protected inventory and equipment must not also spawn in the world");
             test.assertTrue(count(next, Items.DIAMOND) == 17, "All protected diamonds must return");
             test.assertTrue(next.getInventory().getItem(38).is(Items.IRON_CHESTPLATE), "Armor slot must survive");
             test.assertTrue(next.getOffhandItem().is(Items.SHIELD), "Offhand must survive");
@@ -76,7 +93,6 @@ public final class HourglassGameTests {
         } finally { keep(player, previous); close(player); }
     }
 
-    @GameTest(template = "test_empty")
     public static void keepInventoryDoesNotChargeOrMultiplyXp(GameTestHelper test) {
         ServerPlayer player = player(test);
         boolean previous = keep(player, true);
@@ -93,7 +109,6 @@ public final class HourglassGameTests {
         } finally { keep(player, previous); close(player); }
     }
 
-    @GameTest(template = "test_empty")
     public static void laterDeathCancellationLeavesInventoryUntouched(GameTestHelper test) {
         ServerPlayer player = player(test);
         player.getInventory().setItem(0, sand(500));
@@ -115,7 +130,6 @@ public final class HourglassGameTests {
         } finally { NeoForge.EVENT_BUS.unregister(cancel); close(player); }
     }
 
-    @GameTest(template = "test_empty")
     public static void fullInventoryRetainsUnclaimedItems(GameTestHelper test) {
         ServerPlayer player = player(test);
         try {
@@ -132,15 +146,15 @@ public final class HourglassGameTests {
         } finally { close(player); }
     }
 
-    @GameTest(template = "test_empty")
     public static void persistentRecoveryCopiesComponentsAndDimension(GameTestHelper test) {
         ServerPlayer player = player(test);
         try {
             RecoveryState original = new RecoveryState();
             original.target(Optional.of(new DeathPoint(Level.NETHER, new Vec3(13, 70, -41), 5_000_000_000L)));
             original.append(List.of(new SavedSlot("minecraft:inventory", 40, sand(777))), 42);
-            RecoveryState loaded = new RecoveryState();
-            loaded.deserializeNBT(player.registryAccess(), original.serializeNBT(player.registryAccess()));
+            var ops = player.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+            var encoded = RecoveryState.CODEC.codec().encodeStart(ops, original).getOrThrow();
+            RecoveryState loaded = RecoveryState.CODEC.codec().parse(ops, encoded).getOrThrow();
             test.assertTrue(loaded.target().get().dimension().equals(Level.NETHER), "Dimension must survive saving");
             test.assertTrue(loaded.target().get().gameTick() == 5_000_000_000L, "Timestamp must remain a long");
             test.assertTrue(HourglassItem.charge(loaded.items().getFirst().stack()) == 777 && loaded.experience() == 42, "Item components and XP must survive saving");
@@ -150,11 +164,10 @@ public final class HourglassGameTests {
         } finally { close(player); }
     }
 
-    @GameTest(template = "test_empty", timeoutTicks = 200)
     public static void crossDimensionReturnUsesExactBalance(GameTestHelper test) {
         ServerPlayer player = player(test);
         try {
-            var nether = player.server.getLevel(Level.NETHER);
+            var nether = player.level().getServer().getLevel(Level.NETHER);
             test.assertTrue(nether != null, "Nether must exist");
             BlockPos feet = new BlockPos(120, 100, 120);
             nether.setBlockAndUpdate(feet.below(), Blocks.STONE.defaultBlockState());
@@ -163,33 +176,31 @@ public final class HourglassGameTests {
             player.setItemInHand(InteractionHand.MAIN_HAND, sand(360));
             player.getData(ModContent.RECOVERY).target(Optional.of(new DeathPoint(Level.NETHER, Vec3.atBottomCenterOf(feet), PlayerLifecycle.gameTick(player))));
             var result = ModContent.HOURGLASS.get().use(player.level(), player, InteractionHand.MAIN_HAND);
-            test.assertTrue(result.getResult().consumesAction() && player.level().dimension().equals(Level.NETHER), "Return must change dimension");
+            test.assertTrue(result.consumesAction() && player.level().dimension().equals(Level.NETHER), "Return must change dimension");
             test.assertTrue(HourglassItem.charge(player.getMainHandItem()) == 0, "Exact balance must be accepted");
             test.assertTrue(player.getData(ModContent.RECOVERY).target().isEmpty(), "Successful return must consume the target");
             test.succeed();
         } finally { close(player); }
     }
 
-    @GameTest(template = "test_empty")
     public static void unsafeReturnDoesNotSpendCharge(GameTestHelper test) {
         ServerPlayer player = player(test);
         try {
             player.setItemInHand(InteractionHand.MAIN_HAND, sand(500));
             player.getData(ModContent.RECOVERY).target(Optional.of(new DeathPoint(player.level().dimension(),
-                    new Vec3(0, player.level().getMaxBuildHeight() - 3, 0), PlayerLifecycle.gameTick(player))));
+                    new Vec3(0, player.level().getMaxY() - 3, 0), PlayerLifecycle.gameTick(player))));
             var result = ModContent.HOURGLASS.get().use(player.level(), player, InteractionHand.MAIN_HAND);
-            test.assertTrue(result.getResult() == InteractionResult.FAIL, "Return into the sky must fail");
+            test.assertTrue(result == InteractionResult.FAIL, "Return into the sky must fail");
             test.assertTrue(HourglassItem.charge(player.getMainHandItem()) == 500, "Failed return must not spend charge");
             test.assertTrue(player.getData(ModContent.RECOVERY).target().isPresent(), "Failed return must retain the target");
             test.succeed();
         } finally { close(player); }
     }
 
-    @GameTest(template = "test_empty")
     public static void sameDimensionReturnConsumesTarget(GameTestHelper test) {
         ServerPlayer player = player(test);
         try {
-            var level = player.serverLevel();
+            var level = player.level();
             BlockPos feet = new BlockPos(160, 100, 160);
             level.setBlockAndUpdate(feet.below(), Blocks.STONE.defaultBlockState());
             level.setBlockAndUpdate(feet, Blocks.AIR.defaultBlockState());
@@ -198,7 +209,7 @@ public final class HourglassGameTests {
             player.getData(ModContent.RECOVERY).target(Optional.of(new DeathPoint(level.dimension(),
                     Vec3.atBottomCenterOf(feet), PlayerLifecycle.gameTick(player))));
             var result = ModContent.HOURGLASS.get().use(player.level(), player, InteractionHand.MAIN_HAND);
-            test.assertTrue(result.getResult().consumesAction() && player.position().distanceToSqr(Vec3.atBottomCenterOf(feet)) < 0.01,
+            test.assertTrue(result.consumesAction() && player.position().distanceToSqr(Vec3.atBottomCenterOf(feet)) < 0.01,
                     "Return in the same dimension must reach the target");
             test.assertTrue(HourglassItem.charge(player.getMainHandItem()) == 0, "Same-dimension return must deduct the exact fee");
             test.assertTrue(player.getData(ModContent.RECOVERY).target().isEmpty(), "Same-dimension return must consume the target");
@@ -206,11 +217,35 @@ public final class HourglassGameTests {
         } finally { close(player); }
     }
 
+    public static void inventoryDropOutsideDeathRemainsVanilla(GameTestHelper test) {
+        ServerPlayer player = player(test);
+        try {
+            player.getInventory().setItem(0, new ItemStack(Items.DIAMOND, 17));
+            player.getInventory().setItem(40, new ItemStack(Items.SHIELD));
+            int diamondsBefore = dropped(player, Items.DIAMOND);
+            int shieldsBefore = dropped(player, Items.SHIELD);
+            player.getInventory().dropAll();
+            test.assertTrue(player.getInventory().isEmpty(), "Ordinary dropAll must empty the inventory");
+            test.assertTrue(dropped(player, Items.DIAMOND) - diamondsBefore == 17
+                    && dropped(player, Items.SHIELD) - shieldsBefore == 1,
+                    "Outside death capture, inventory and equipment must spawn normally and exactly once");
+            test.assertTrue(!player.hasData(ModContent.RECOVERY) || !player.getData(ModContent.RECOVERY).hasPending(),
+                    "Ordinary drops must not create recovery items");
+            test.succeed();
+        } finally { close(player); }
+    }
+
+    private static int dropped(ServerPlayer player, net.minecraft.world.item.Item item) {
+        return player.level().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                player.getBoundingBox().inflate(3)).stream().filter(entity -> entity.getItem().is(item))
+                .mapToInt(entity -> entity.getItem().getCount()).sum();
+    }
+
     @SuppressWarnings("removal")
     private static ServerPlayer player(GameTestHelper test) {
         ServerPlayer player = test.makeMockServerPlayerInLevel();
         player.getInventory().clearContent();
-        player.moveTo(test.absoluteVec(new Vec3(1, 1, 1)));
+        player.snapTo(test.absoluteVec(new Vec3(1, 1, 1)));
         return player;
     }
     private static ItemStack sand(int seconds) {
@@ -223,7 +258,7 @@ public final class HourglassGameTests {
         player.die(player.damageSources().genericKill());
     }
     private static ServerPlayer respawn(ServerPlayer player) {
-        return player.server.getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
+        return player.level().getServer().getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
     }
     private static int count(ServerPlayer player, net.minecraft.world.item.Item item) {
         int count = 0;
@@ -234,13 +269,13 @@ public final class HourglassGameTests {
         return count;
     }
     private static boolean keep(ServerPlayer player, boolean enabled) {
-        var rule = player.server.overworld().getGameRules().getRule(GameRules.RULE_KEEPINVENTORY);
-        boolean old = rule.get();
-        rule.set(enabled, player.server);
+        var rules = player.level().getGameRules();
+        boolean old = rules.get(GameRules.KEEP_INVENTORY);
+        rules.set(GameRules.KEEP_INVENTORY, enabled, player.level().getServer());
         return old;
     }
     private static void close(ServerPlayer player) {
-        ServerPlayer current = player.server.getPlayerList().getPlayer(player.getUUID());
-        if (current != null) player.server.getPlayerList().remove(current);
+        ServerPlayer current = player.level().getServer().getPlayerList().getPlayer(player.getUUID());
+        if (current != null) player.level().getServer().getPlayerList().remove(current);
     }
 }

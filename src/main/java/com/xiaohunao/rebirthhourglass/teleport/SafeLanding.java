@@ -17,7 +17,7 @@ public final class SafeLanding {
 
     public static Optional<Vec3> find(ServerLevel level, ServerPlayer player, Vec3 death, int radius) {
         BlockPos center = BlockPos.containing(death);
-        int baseY = Math.clamp(center.getY(), level.getMinBuildHeight() + 1, level.getMaxBuildHeight() - 2);
+        int baseY = Math.clamp(center.getY(), level.getMinY() + 1, level.getMaxY() - 2);
         for (int ring = 0; ring <= radius; ring++) {
             for (int dy = 0; dy <= 16; dy++) {
                 for (int sign = 0; sign < (dy == 0 ? 1 : 2); sign++) {
@@ -36,7 +36,7 @@ public final class SafeLanding {
     }
 
     private static boolean safe(ServerLevel level, ServerPlayer player, BlockPos feet) {
-        if (feet.getY() <= level.getMinBuildHeight() || feet.getY() + 2 > level.getMaxBuildHeight()
+        if (feet.getY() <= level.getMinY() || feet.getY() + 2 > level.getMaxY()
                 || !level.getWorldBorder().isWithinBounds(feet)) return false;
         level.getChunk(feet.getX() >> 4, feet.getZ() >> 4);
         BlockPos floor = feet.below();
