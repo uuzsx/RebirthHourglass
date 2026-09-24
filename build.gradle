@@ -4,8 +4,8 @@ plugins {
 }
 version = mod_version
 group = mod_group_id
-base { archivesName = 'rebirth-hourglass-neoforge-1.21.1' }
-java { toolchain.languageVersion = JavaLanguageVersion.of(21); withSourcesJar() }
+base { archivesName = 'rebirth-hourglass-neoforge-26.2' }
+java { toolchain.languageVersion = JavaLanguageVersion.of(25); withSourcesJar() }
 repositories { mavenCentral() }
 neoForge {
     version = neo_version
@@ -39,4 +39,5 @@ tasks.withType(AbstractArchiveTask).configureEach {
 tasks.named('jar', Jar).configure {
     exclude 'com/xiaohunao/rebirthhourglass/gametest/**'
     exclude 'data/rebirth_hourglass/structure/test_empty.nbt'
+    exclude 'data/rebirth_hourglass/test_instance/**'
 }

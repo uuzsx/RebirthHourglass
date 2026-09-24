@@ -10,12 +10,12 @@ description='''A rechargeable hourglass that protects your inventory and brings 
 [[dependencies.rebirth_hourglass]]
 modId="neoforge"
 type="required"
-versionRange="[21.1.251,21.2)"
+versionRange="[26.2.0.88,26.3)"
 ordering="NONE"
 side="BOTH"
 [[dependencies.rebirth_hourglass]]
 modId="minecraft"
 type="required"
-versionRange="[1.21.1]"
+versionRange="[26.2]"
 ordering="NONE"
 side="BOTH"

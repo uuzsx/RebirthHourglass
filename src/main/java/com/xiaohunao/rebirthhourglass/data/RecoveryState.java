@@ -1,17 +1,25 @@
 package com.xiaohunao.rebirthhourglass.data;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 /** Persistent per-player recovery, including items awaiting free inventory space. */
-public final class RecoveryState implements INBTSerializable<CompoundTag> {
+public final class RecoveryState {
+    public static final MapCodec<RecoveryState> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            DeathPoint.CODEC.optionalFieldOf("target").forGetter(RecoveryState::target),
+            SavedSlot.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(RecoveryState::items),
+            Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("experience", 0).forGetter(RecoveryState::experience)
+    ).apply(instance, RecoveryState::new));
+
+    public RecoveryState() {}
+    private RecoveryState(Optional<DeathPoint> target, List<SavedSlot> items, int experience) {
+        target(target); items(items); experience(experience);
+    }
+
     private Optional<DeathPoint> target = Optional.empty();
     private List<SavedSlot> items = new ArrayList<>();
     private int experience;
@@ -29,35 +37,4 @@ public final class RecoveryState implements INBTSerializable<CompoundTag> {
         experience = (int) Math.min(Integer.MAX_VALUE, (long) experience + Math.max(0, xp));
     }
 
-    @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("version", 1);
-        target.ifPresent(point -> tag.put("target", point.save()));
-        tag.putInt("experience", experience);
-        ListTag stored = new ListTag();
-        for (SavedSlot slot : items) {
-            if (slot.stack().isEmpty()) continue;
-            CompoundTag entry = new CompoundTag();
-            entry.putString("adapter", slot.adapter());
-            entry.putInt("slot", slot.slot());
-            entry.put("stack", slot.stack().save(provider));
-            stored.add(entry);
-        }
-        tag.put("items", stored);
-        return tag;
-    }
-
-    @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-        target = tag.contains("target", Tag.TAG_COMPOUND) ? DeathPoint.read(tag.getCompound("target")) : Optional.empty();
-        experience = Math.max(0, tag.getInt("experience"));
-        items.clear();
-        ListTag stored = tag.getList("items", Tag.TAG_COMPOUND);
-        for (int i = 0; i < stored.size(); i++) {
-            CompoundTag entry = stored.getCompound(i);
-            ItemStack.parse(provider, entry.getCompound("stack")).ifPresent(stack ->
-                    items.add(new SavedSlot(entry.getString("adapter"), entry.getInt("slot"), stack)));
-        }
-    }
 }
