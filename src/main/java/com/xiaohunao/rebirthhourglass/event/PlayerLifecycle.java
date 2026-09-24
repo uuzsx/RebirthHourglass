@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.*;
@@ -22,7 +22,7 @@ import java.util.*;
 
 public final class PlayerLifecycle {
     private PlayerLifecycle() {}
-    public static long gameTick(ServerPlayer player) { return player.server.overworld().getGameTime(); }
+    public static long gameTick(ServerPlayer player) { return player.level().getServer().overworld().getGameTime(); }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void prepare(LivingDeathEvent event) {
@@ -42,7 +42,7 @@ public final class PlayerLifecycle {
         int currentXp = ExperienceMath.currentPoints(player.experienceLevel, player.experienceProgress, player.getXpNeededForNextLevel());
         player.setData(ModContent.PLAN, Optional.of(new DeathPlan(slots, payer,
                 new DeathPoint(player.level().dimension(), player.position(), gameTick(player)),
-                player.serverLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY),
+                player.level().getGameRules().get(GameRules.KEEP_INVENTORY),
                 HourglassConfig.deathCost(), ExperienceMath.retained(currentXp, HourglassConfig.experienceFraction()))));
     }
 
@@ -108,7 +108,7 @@ public final class PlayerLifecycle {
     }
 
     private static void restoreSuppressedOrbs(ServerPlayer player, DeathPlan plan) {
-        if (plan.suppressedOrbs > 0) ExperienceOrb.award(player.serverLevel(), player.position(), plan.suppressedOrbs);
+        if (plan.suppressedOrbs > 0) ExperienceOrb.award(player.level(), player.position(), plan.suppressedOrbs);
     }
 
     @SubscribeEvent
@@ -158,7 +158,7 @@ public final class PlayerLifecycle {
         if (xp > 0) player.giveExperiencePoints(xp);
         player.getInventory().setChanged();
         player.inventoryMenu.broadcastChanges();
-        if (notify) player.displayClientMessage(Component.translatable(
+        if (notify) player.sendSystemMessage(Component.translatable(
                 remaining.isEmpty() ? "message.rebirth_hourglass.restored" : "message.rebirth_hourglass.pending",
                 before - remaining.size(), remaining.size()), false);
     }
