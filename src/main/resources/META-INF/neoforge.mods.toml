@@ -5,7 +5,7 @@ license="All Rights Reserved"
 modId="rebirth_hourglass"
 version="${version}"
 displayName="Rebirth Hourglass"
-authors="TeamPancakeMC, XiaoHuNao"
+authors="sxuuz"
 description='''A rechargeable hourglass that protects your inventory and brings you back after death.'''
 [[dependencies.rebirth_hourglass]]
 modId="neoforge"
