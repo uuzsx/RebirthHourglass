@@ -1,6 +1,6 @@
 package com.xiaohunao.rebirthhourglass.api;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public final class InventoryAdapters {
     private static final Map<String, InventoryAdapter> ADAPTERS = new ConcurrentSkipListMap<>();
     static {
-        register(ResourceLocation.withDefaultNamespace("inventory"), new InventoryAdapter() {
+        register(Identifier.withDefaultNamespace("inventory"), new InventoryAdapter() {
             @Override public int size(ServerPlayer player) { return player.getInventory().getContainerSize(); }
             @Override public ItemStack get(ServerPlayer player, int slot) { return player.getInventory().getItem(slot); }
             @Override public ItemStack restore(ServerPlayer player, int slot, ItemStack stack) {
@@ -20,7 +20,7 @@ public final class InventoryAdapters {
                 }
                 // Inventory.add discards an uninsertable remainder for creative players.
                 // Recovery must conserve the remainder in every game mode.
-                for (int i = 0; i < inventory.items.size() && !stack.isEmpty(); i++) {
+                for (int i = 0; i < inventory.getNonEquipmentItems().size() && !stack.isEmpty(); i++) {
                     ItemStack existing = inventory.getItem(i);
                     if (!existing.isEmpty() && ItemStack.isSameItemSameComponents(existing, stack)) {
                         int room = Math.min(existing.getMaxStackSize(), inventory.getMaxStackSize()) - existing.getCount();
@@ -29,7 +29,7 @@ public final class InventoryAdapters {
                         stack.shrink(moved);
                     }
                 }
-                for (int i = 0; i < inventory.items.size() && !stack.isEmpty(); i++) {
+                for (int i = 0; i < inventory.getNonEquipmentItems().size() && !stack.isEmpty(); i++) {
                     if (inventory.getItem(i).isEmpty()) {
                         int moved = Math.min(stack.getCount(), Math.min(stack.getMaxStackSize(), inventory.getMaxStackSize()));
                         inventory.setItem(i, stack.copyWithCount(moved));
@@ -41,7 +41,7 @@ public final class InventoryAdapters {
         });
     }
     private InventoryAdapters() {}
-    public static void register(ResourceLocation id, InventoryAdapter adapter) {
+    public static void register(Identifier id, InventoryAdapter adapter) {
         if (ADAPTERS.putIfAbsent(id.toString(), java.util.Objects.requireNonNull(adapter)) != null)
             throw new IllegalArgumentException("Duplicate inventory adapter: " + id);
     }
